@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/datmt/git-smells-wrong/internal/config"
 	"github.com/datmt/git-smells-wrong/internal/engine"
 	"github.com/datmt/git-smells-wrong/internal/sandbox"
+	"github.com/spf13/cobra"
 )
 
 // version is set at build time via -ldflags "-X main.version=vX.Y.Z"
