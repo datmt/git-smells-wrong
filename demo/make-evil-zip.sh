@@ -27,6 +27,17 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     for root, _, files in os.walk(stage):
         for f in files:
             full = os.path.join(root, f)
-            z.write(full, os.path.relpath(full, stage))
+            arc = os.path.relpath(full, stage)
+            zi = zipfile.ZipInfo(arc)
+            # Preserve the executable bit: git silently skips hooks that
+            # are not +x, and Python's zipfile does not store modes by
+            # default. Real lures use tar.gz or set this for a reason.
+            with open(full, "rb") as fh:
+                data = fh.read()
+            if arc == ".git/hooks/post-checkout":
+                zi.external_attr = (0o755 << 16)
+            else:
+                zi.external_attr = (0o644 << 16)
+            z.writestr(zi, data)
 print(f"wrote {out}")
 EOF
