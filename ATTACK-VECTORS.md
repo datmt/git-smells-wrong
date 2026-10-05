@@ -99,6 +99,58 @@ reasonable first action compromises the box:
 
 Total victim interaction required: **zero suspicious commands.**
 
+## Beyond the scanner: other git attacks to know
+
+The four vectors above are archive-delivered auto-execution. Git's
+attack surface is wider — these don't trigger any scanner rule, so
+they're handled by habits, not tooling.
+
+### Clone / checkout time
+
+- **Malicious submodules.** `.gitmodules` can point anywhere, and
+  `git clone --recurse-submodules` fetches and checks it out without
+  further questions. Submodules have also carried genuine clone-time
+  RCEs (CVE-2024-32002, CVE-2022-39253 — crafted repos executing code
+  *during* clone). Never recurse into untrusted repos; read
+  `.gitmodules` URLs first; keep git itself updated.
+- **Shared-machine ownership (CVE-2022-24765).** In a shared directory,
+  someone else's repo can run its hooks and config as you. Git now
+  refuses with "dubious ownership" — don't blanket-allow it with
+  `safe.directory = *`.
+- **Moved tags.** Tags can be force-pushed; `v1.2.3` today may not be
+  yesterday's `v1.2.3`. For anything security-sensitive, pin full
+  commit SHAs and verify signatures instead of trusting tag names.
+
+### Config trust (the dotfiles trap)
+
+`~/.gitconfig` controls `core.hooksPath`, `core.fsmonitor`,
+`core.sshCommand`, `credential.helper`, and `url.insteadOf` — each is
+code execution or traffic redirection if an attacker can write to it.
+The usual path in: a "dotfiles" repo whose installer symlinks configs
+into your home, or any `curl | bash` setup script. One `insteadOf`
+rule silently reroutes your pushes through their host; one `hooksPath`
+makes *every* repo on your machine run their hooks. Audit anything
+that writes to your home directory.
+
+### Review-time deception
+
+- **Trojan Source (CVE-2021-42574).** Bidirectional Unicode controls
+  make code render differently than it compiles — `if (isAdmin)` on
+  screen, different logic on disk. Many editors still don't flag it.
+- **Lookalike trust.** Unverified commits in a familiar repo, or PRs
+  from lookalike accounts (`acme-corp` vs `acme_corp`), seed
+  account-takeover and repo-confusion campaigns. Check the badge,
+  not just the name.
+
+### The CI layer (where forks attack you)
+
+- **Pwn requests.** A fork PR against a `pull_request_target` workflow
+  runs *your* secrets in the attacker's code context. One overly
+  broad workflow and your tokens end up in someone else's logs.
+- **Cache / artifact poisoning.** Poisoned Actions caches or artifacts
+  on self-hosted runners persist across jobs and outlive the PR that
+  planted them.
+
 ## What to do about it
 
 - Never `checkout` / `install` / open unfamiliar projects on your main
