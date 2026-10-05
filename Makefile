@@ -3,7 +3,7 @@ BUILD_DIR := bin
 IMAGE := dattm24/git-smells-wrong:latest
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 
-.PHONY: all build test vet clean docker docker-run docker-push release lint
+.PHONY: all build test vet clean docker docker-run docker-push release demo lint
 
 all: build
 
@@ -13,6 +13,9 @@ build:
 
 release:
 	./release.sh $(VERSION)
+
+demo:
+	./demo/make-evil-zip.sh
 
 test:
 	go test ./...

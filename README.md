@@ -113,6 +113,16 @@ Example output:
  Summary: 4 critical, 0 warning, 0 info  →  CRITICAL (exit 2)
 ```
 
+## Try it in 30 seconds
+
+No malicious repo needed — scan the inert demo archive in `demo/`:
+
+```bash
+git-smells-wrong scan --archive=./demo/evil-take-home.zip
+# → 4 CRITICAL findings, exit 2. See demo/README.md to watch the
+#    payloads attempt (and fail), and demo/make-evil-zip.sh to rebuild it.
+```
+
 ## Safety model
 
 - Clones with `git clone --template=/dev/null`, so hostile global hook
