@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: 0
+    strategy:
+      matrix:
+        include:
+          - {goos: linux, goarch: amd64}
+          - {goos: linux, goarch: arm64}
+          - {goos: darwin, goarch: amd64}
+          - {goos: darwin, goarch: arm64}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          VERSION="${GITHUB_REF_NAME:-dev}"
+          go build -trimpath -ldflags="-s -w -X main.version=$VERSION" \
+            -o git-smells-wrong-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/git-smells-wrong
+
+      - name: Size check (<30MB)
+        run: |
+          size=$(stat -c%s git-smells-wrong-${{ matrix.goos }}-${{ matrix.goarch }})
+          echo "binary size: $((size / 1024 / 1024)) MB"
+          [ "$size" -le $((30 * 1024 * 1024)) ]
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: git-smells-wrong-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: git-smells-wrong-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: git-smells-wrong-${{ matrix.goos }}-${{ matrix.goarch }}
