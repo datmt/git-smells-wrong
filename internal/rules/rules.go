@@ -75,27 +75,56 @@ func readFileCapped(path string, maxBytes int64) (string, error) {
 
 func snippetOf(content string) string {
 	content = strings.TrimSpace(content)
-	if len(content) > 300 {
-		return content[:300] + "…"
+	// Lead with the actual evidence: up to 3 suspicious lines, wherever
+	// they sit in the file. Falling back to the file head is what makes
+	// reports read as fabricated (boilerplate instead of payload).
+	matches := func(l string) bool {
+		return reOutbound.MatchString(l) || reB64Blob.MatchString(l) || reProcExec.MatchString(l)
 	}
-	// First suspicious line if identifiable, else head.
-	lines := strings.Split(content, "\n")
-	for _, l := range lines {
+	collect := func(skipComments bool) []string {
+		var hits []string
+		for _, l := range strings.Split(content, "\n") {
+			t := strings.TrimSpace(l)
+			if t == "" {
+				continue
+			}
+			if skipComments && strings.HasPrefix(t, "#") {
+				continue
+			}
+			if matches(l) {
+				hits = append(hits, t)
+				if len(hits) == 3 {
+					break
+				}
+			}
+		}
+		return hits
+	}
+	// Prefer code lines as evidence; comments mentioning payloads
+	// ("fake reverse shell") are only used when nothing else matched.
+	hits := collect(true)
+	if len(hits) == 0 {
+		hits = collect(false)
+	}
+	if len(hits) > 0 {
+		s := strings.Join(hits, " / ")
+		if len(s) > 300 {
+			return s[:300] + "…"
+		}
+		return s
+	}
+	// No suspicious lines: first non-comment, non-empty line.
+	for _, l := range strings.Split(content, "\n") {
 		t := strings.TrimSpace(l)
 		if t == "" || strings.HasPrefix(t, "#") {
 			continue
 		}
-		if reOutbound.MatchString(l) || reB64Blob.MatchString(l) || reProcExec.MatchString(l) {
-			if len(t) > 300 {
-				return t[:300] + "…"
-			}
-			return t
+		if len(t) > 300 {
+			return t[:300] + "…"
 		}
+		return t
 	}
-	if len(content) > 300 {
-		return content[:300] + "…"
-	}
-	return content
+	return ""
 }
 
 // ScanAll runs every static rule over workDir.
