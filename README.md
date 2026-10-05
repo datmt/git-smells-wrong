@@ -144,8 +144,11 @@ Scripts: `build.sh` (dev build) · `release.sh` (release tarballs) ·
 2. CI (`.github/workflows/build.yml`) attaches
    `git-smells-wrong-<os>-<arch>` binaries to the release —
    this is what `install.sh` downloads.
-3. CI (`.github/workflows/docker.yml`) publishes the image to GHCR.
-4. For Docker Hub: `IMAGE=dattm24/git-smells-wrong ./docker-build-push.sh v0.1.0`.
+3. CI (`.github/workflows/docker.yml`) publishes the image to
+   [dattm24/git-smells-wrong](https://hub.docker.com/r/dattm24/git-smells-wrong)
+   on Docker Hub. It needs two repo secrets: `DOCKERHUB_USERNAME` and
+   `DOCKERHUB_TOKEN` (a Docker Hub access token with write access).
+4. Manual publish: `IMAGE=dattm24/git-smells-wrong ./docker-build-push.sh v0.1.0`.
 
 ## Layout
 

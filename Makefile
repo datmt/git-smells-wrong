@@ -1,6 +1,6 @@
 BINARY := git-smells-wrong
 BUILD_DIR := bin
-IMAGE := ghcr.io/yourorg/git-smells-wrong:latest
+IMAGE := dattm24/git-smells-wrong:latest
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 
 .PHONY: all build test vet clean docker docker-run docker-push release lint

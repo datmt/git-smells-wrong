@@ -3,12 +3,12 @@
 # Usage: ./docker-build-push.sh [tag]   (defaults to git describe, else "latest")
 #
 # Env overrides:
-#   IMAGE    image repository (default ghcr.io/yourorg/git-smells-wrong)
+#   IMAGE    image repository (default dattm24/git-smells-wrong)
 #   VERSION  version stamped into the binary (default: the tag)
 set -euo pipefail
 cd "$(dirname "$0")"
 
-IMAGE="${IMAGE:-ghcr.io/yourorg/git-smells-wrong}"
+IMAGE="${IMAGE:-dattm24/git-smells-wrong}"
 TAG="${1:-$(git describe --tags --always 2>/dev/null || echo latest)}"
 VERSION="${VERSION:-$TAG}"
 

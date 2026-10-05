@@ -7,7 +7,7 @@ import (
 )
 
 // Image is the official container image used for sandboxed delegation.
-const Image = "ghcr.io/yourorg/git-smells-wrong:latest"
+const Image = "dattm24/git-smells-wrong:latest"
 
 // IsDockerAvailable reports whether the docker CLI is on PATH.
 func IsDockerAvailable() bool {
