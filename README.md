@@ -125,6 +125,55 @@ Rebuild the fixture or inspect sources any time:
 Details in `demo/README.md`, and the full "what could they steal"
 breakdown in `ATTACK-VECTORS.md`.
 
+## Further reading
+
+Grouped by what each source teaches you. Start at the top if the demo
+made you curious, work down if you're hardening a team.
+
+**The campaigns this tool is built for**
+
+- MITRE ATT&CK — technique catalog mapping everything in
+  `ATTACK-VECTORS.md` to IDs defenders share:
+  [T1059 Command Execution](https://attack.mitre.org/techniques/T1059/),
+  [T1552 Unsecured Credentials](https://attack.mitre.org/techniques/T1552/),
+  [T1041 Exfiltration Over C2](https://attack.mitre.org/techniques/T1041/),
+  [T1547 Boot/Logon Autostart](https://attack.mitre.org/techniques/T1547/)
+- Search: *"Contagious Interview" Lazarus fake job interview supply chain* —
+  the DPRK campaign behind malicious take-home repos; CISA and several
+  vendor advisories track its evolving lures.
+
+**How each trigger works (primary docs)**
+
+- [Git hooks](https://git-scm.com/docs/githooks) — which hook fires on
+  which operation, and why non-executable hooks are skipped.
+- [Git config](https://git-scm.com/docs/git-config) — `core.hooksPath`,
+  `core.fsmonitor`, `url.insteadOf`: the settings attackers abuse once
+  they can write your config.
+- [Git submodules](https://git-scm.com/docs/gitmodules) — what
+  `--recurse-submodules` actually executes on your behalf.
+- [VS Code tasks](https://code.visualstudio.com/docs/editor/tasks) —
+  `runOn: folderOpen` and the workspace-trust model around it.
+- [setuptools](https://setuptools.pypa.io/) — `cmdclass` and why
+  `setup.py` is code, not metadata.
+
+**Deception and trust**
+
+- [Trojan Source](https://trojansource.codes/) — the original paper
+  and demos on bidirectional-Unicode review evasion (CVE-2021-42574).
+- [GitHub Actions hardening guide](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) —
+  the `pull_request_target` pwn-request pattern and how to constrain it.
+
+**Thinking in systems**
+
+- [SLSA](https://slsa.dev/) — levels for reasoning about how much you
+  trust an artifact's provenance, from "some zip" upward.
+- [Sigstore](https://www.sigstore.dev/) — keyless signing so "verified
+  commit" stops being a UI nicety and starts being checkable.
+- [OWASP Top 10 CI/CD Risks](https://owasp.org/www-project-top-10-ci-cd-security-risks/) —
+  pwn requests, cache poisoning, and artifact tampering in framework form.
+- Look up these CVEs on [cve.org](https://www.cve.org/) to see clone-time
+  RCE mechanics: CVE-2024-32002, CVE-2022-39253, CVE-2022-24765.
+
 ## Install
 
 ### Option 1 — install script (Linux/macOS, amd64/arm64)
