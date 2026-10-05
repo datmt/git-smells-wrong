@@ -122,7 +122,8 @@ Rebuild the fixture or inspect sources any time:
 `./demo/make-evil-zip.sh` regenerates the archive from `demo/src/`
 (the hook source lives at `demo/src/hooks/` — git can't track a
 `.git/` dir, which is itself the reason this vector needs an archive).
-Details in `demo/README.md`.
+Details in `demo/README.md`, and the full "what could they steal"
+breakdown in `ATTACK-VECTORS.md`.
 
 ## Install
 
