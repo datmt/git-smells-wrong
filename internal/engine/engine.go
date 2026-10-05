@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/yourorg/git-smells-wrong/internal/config"
-	"github.com/yourorg/git-smells-wrong/internal/ingestion"
-	"github.com/yourorg/git-smells-wrong/internal/report"
-	"github.com/yourorg/git-smells-wrong/internal/rules"
-	"github.com/yourorg/git-smells-wrong/internal/tracer"
+	"github.com/datmt/git-smells-wrong/internal/config"
+	"github.com/datmt/git-smells-wrong/internal/ingestion"
+	"github.com/datmt/git-smells-wrong/internal/report"
+	"github.com/datmt/git-smells-wrong/internal/rules"
+	"github.com/datmt/git-smells-wrong/internal/tracer"
 )
 
 // Result bundles the rendered output with its exit code.

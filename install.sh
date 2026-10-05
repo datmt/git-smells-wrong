@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Install git-smells-wrong on this machine.
-#   curl -fsSL https://raw.githubusercontent.com/yourorg/git-smells-wrong/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/datmt/git-smells-wrong/main/install.sh | bash
 #
 # Env overrides:
 #   INSTALL_DIR  destination directory (default /usr/local/bin)
 set -euo pipefail
 
-REPO="yourorg/git-smells-wrong"
+REPO="datmt/git-smells-wrong"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 BIN_NAME="git-smells-wrong"
 

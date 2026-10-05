@@ -1,4 +1,4 @@
-module github.com/yourorg/git-smells-wrong
+module github.com/datmt/git-smells-wrong
 
 go 1.23
 

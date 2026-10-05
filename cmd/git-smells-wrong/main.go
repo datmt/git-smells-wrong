@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/yourorg/git-smells-wrong/internal/config"
-	"github.com/yourorg/git-smells-wrong/internal/engine"
-	"github.com/yourorg/git-smells-wrong/internal/sandbox"
+	"github.com/datmt/git-smells-wrong/internal/config"
+	"github.com/datmt/git-smells-wrong/internal/engine"
+	"github.com/datmt/git-smells-wrong/internal/sandbox"
 )
 
 // version is set at build time via -ldflags "-X main.version=vX.Y.Z"

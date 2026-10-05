@@ -25,7 +25,7 @@ Exit codes: `0` clean · `1` warning · `2` critical (or scan error).
 ### Option 1 — install script (Linux/macOS, amd64/arm64)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourorg/git-smells-wrong/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/datmt/git-smells-wrong/main/install.sh | bash
 ```
 
 Pulls the latest GitHub release binary into `/usr/local/bin`
@@ -44,7 +44,7 @@ docker run --rm dattm24/git-smells-wrong:latest scan --help
 ### Option 3 — from source (Go 1.23+)
 
 ```bash
-git clone https://github.com/yourorg/git-smells-wrong.git
+git clone https://github.com/datmt/git-smells-wrong.git
 cd git-smells-wrong
 ./build.sh            # -> ./bin/git-smells-wrong
 # or: make build

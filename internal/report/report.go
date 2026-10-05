@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yourorg/git-smells-wrong/internal/rules"
-	"github.com/yourorg/git-smells-wrong/internal/tracer"
+	"github.com/datmt/git-smells-wrong/internal/rules"
+	"github.com/datmt/git-smells-wrong/internal/tracer"
 )
 
 // Exit codes per PRD §5.2C.
